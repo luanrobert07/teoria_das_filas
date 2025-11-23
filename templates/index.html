@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="text-center py-10">
+  <h1 class="text-4xl font-bold">Teoria das Filas</h1>
+  <p class="text-gray-600 mt-2">Escolha um modelo para começar</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 max-w-6xl mx-auto">
+    <a href="/mm1" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+      <h3 class="font-bold text-xl">M/M/1</h3>
+      <p class="text-gray-500 mt-2">1 servidor — fila infinita</p>
+    </a>
+
+    <a href="/mmc" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+      <h3 class="font-bold text-xl">M/M/s>1</h3>
+      <p class="text-gray-500 mt-2">Múltiplos servidores</p>
+    </a>
+
+    <a href="/mm1k" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+      <h3 class="font-bold text-xl">M/M/1/K</h3>
+      <p class="text-gray-500 mt-2">Capacidade limitada K</p>
+    </a>
+
+    <a href="/mmck" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+      <h3 class="font-bold text-xl">M/M/s>1/K</h3>
+      <p class="text-gray-500 mt-2">Múltiplos servidores + capacidade K</p>
+    </a>
+
+    <a href="/mm1n" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+      <h3 class="font-bold text-xl">M/M/1/N</h3>
+      <p class="text-gray-500 mt-2">População finita N</p>
+    </a>
+
+    <a href="/mmcn" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+      <h3 class="font-bold text-xl">M/M/s>1/N</h3>
+      <p class="text-gray-500 mt-2">População finita com c servidores</p>
+    </a>
+
+    <a href="/mg1" class="bg-white p-6 rounded-lg shadow border hover:border-blue-500 hover:shadow-lg transition">
+      <h3 class="font-bold text-xl">M/G/1</h3>
+      <p class="text-gray-600 mt-2 text-sm">
+        Sem prioridade, preemptiva e não-preemptiva
+      </p>
+    </a>
+
+
+    <a href="/mm1_preemptive" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+      <h3 class="font-bold text-xl">Modelo com prioridades</h3>
+      <p class="text-gray-500 mt-2">Com interrupção</p>
+    </a>
+
+    <a href="/mm1_non_preemptive" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+      <h3 class="font-bold text-xl">Modelo com prioridades</h3>
+      <p class="text-gray-500 mt-2">Sem interrupção</p>
+    </a>
+  </div>
+</div>
+{% endblock %}

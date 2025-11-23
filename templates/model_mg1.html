@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto">
+
+  <a href="/" class="text-gray-600">← Voltar</a>
+  <h2 class="text-3xl font-bold mt-4">Modelo M/G/1</h2>
+  <p class="text-gray-500 mt-1">Fila geral com um servidor (1), com ou sem prioridade</p>
+
+  <!-- ========================== CARDS ========================== -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+
+    <!-- CARD M/G/1 -->
+    <form method="post" class="cursor-pointer" onclick="this.submit()">
+      <input type="hidden" name="mode" value="mg1">
+      <div class="p-6 rounded-lg shadow 
+                  {% if mode=='mg1' %} bg-blue-100 border-blue-500 border {% else %} bg-white {% endif %}">
+        <h3 class="font-bold text-lg">M/G/1</h3>
+        <p class="text-sm text-gray-600">Sem prioridade</p>
+      </div>
+    </form>
+
+    <!-- CARD PREEMPTIVO -->
+    <form method="post" class="cursor-pointer" onclick="this.submit()">
+      <input type="hidden" name="mode" value="preemptivo">
+      <div class="p-6 rounded-lg shadow
+                  {% if mode=='preemptivo' %} bg-blue-100 border-blue-500 border {% else %} bg-white {% endif %}">
+        <h3 class="font-bold text-lg">Prioridade Preemptiva</h3>
+        <p class="text-sm text-gray-600">Interrompe classes inferiores</p>
+      </div>
+    </form>
+
+    <!-- CARD NÃO PREEMPTIVO -->
+    <form method="post" class="cursor-pointer" onclick="this.submit()">
+      <input type="hidden" name="mode" value="npreemptivo">
+      <div class="p-6 rounded-lg shadow
+                  {% if mode=='npreemptivo' %} bg-blue-100 border-blue-500 border {% else %} bg-white {% endif %}">
+        <h3 class="font-bold text-lg">Prioridade Não-Preemptiva</h3>
+        <p class="text-sm text-gray-600">SPT — não interrompe</p>
+      </div>
+    </form>
+
+  </div>
+
+  <!-- ========================== FORM M/G/1 ========================== -->
+  {% if mode == 'mg1' %}
+  <form method="post" class="bg-white p-6 rounded-lg shadow mt-6">
+    <input type="hidden" name="mode" value="mg1">
+
+    <h3 class="text-xl font-semibold mb-4">Parâmetros M/G/1</h3>
+
+    <div class="space-y-4">
+      <div>
+        <label>Taxa de Chegada (λ)</label>
+        <input name="lambda" class="w-full p-2 border rounded" value="{{ params.lambda }}">
+      </div>
+
+      <div>
+        <label>Taxa de Serviço (μ)</label>
+        <input name="mu" class="w-full p-2 border rounded" value="{{ params.mu }}">
+      </div>
+
+      <div>
+        <label>Variância do Serviço (σ²)</label>
+        <input name="sigma2" class="w-full p-2 border rounded" value="{{ params.sigma2 }}">
+      </div>
+
+      <button class="w-full bg-blue-600 text-white py-2 rounded">Calcular</button>
+    </div>
+  </form>
+  {% endif %}
+
+  <!-- ========================== FORM PREEMPTIVO ========================== -->
+  {% if mode == 'preemptivo' %}
+  <form method="post" class="bg-white p-6 rounded-lg shadow mt-6">
+    <input type="hidden" name="mode" value="preemptivo">
+
+    <h3 class="text-xl font-semibold mb-4">Prioridade Preemptiva</h3>
+
+    <p class="text-sm text-gray-600 mb-3">Adicione classes de prioridade (mín. 2)</p>
+
+    <div id="classes-preemptivo">
+      <div class="grid grid-cols-3 gap-3 mb-2">
+        <input name="lambda[]" class="p-2 border rounded" placeholder="λ">
+        <input name="service[]" class="p-2 border rounded" placeholder="E[S]">
+        <input name="var[]" class="p-2 border rounded" placeholder="Var[S]">
+      </div>
+    </div>
+
+    <button type="button" onclick="addClassRow('classes-preemptivo')" class="bg-gray-200 px-3 py-1 rounded text-sm">
+      + Adicionar Classe
+    </button>
+
+    <button class="w-full bg-blue-600 text-white py-2 rounded mt-4">Calcular</button>
+  </form>
+  {% endif %}
+
+  <!-- ========================== FORM NÃO PREEMPTIVO ========================== -->
+  {% if mode == 'npreemptivo' %}
+  <form method="post" class="bg-white p-6 rounded-lg shadow mt-6">
+    <input type="hidden" name="mode" value="npreemptivo">
+
+    <h3 class="text-xl font-semibold mb-4">Prioridade Não-Preemptiva</h3>
+
+    <div id="classes-np">
+      <div class="grid grid-cols-3 gap-3 mb-2">
+        <input name="lambda[]" class="p-2 border rounded" placeholder="λ">
+        <input name="service[]" class="p-2 border rounded" placeholder="E[S]">
+        <input name="var[]" class="p-2 border rounded" placeholder="Var[S]">
+      </div>
+    </div>
+
+    <button type="button" onclick="addClassRow('classes-np')" class="bg-gray-200 px-3 py-1 rounded text-sm">
+      + Adicionar Classe
+    </button>
+
+    <button class="w-full bg-blue-600 text-white py-2 rounded mt-4">Calcular</button>
+  </form>
+  {% endif %}
+
+  <!-- ========================== RESULTADOS ========================== -->
+  {% if metrics %}
+  <div class="bg-white p-6 rounded-lg shadow mt-6">
+    <h3 class="text-xl font-semibold mb-4">Resultados</h3>
+
+    {# --------------------- MODO M/G/1 NORMAL --------------------- #}
+    {% if mode == 'mg1' %}
+    {% for k, v in metrics.items() %}
+    <div class="py-1 flex justify-between border-b">
+      <span class="text-gray-600">{{ k }}</span>
+      <span class="font-semibold">{{ v }}</span>
+    </div>
+    {% endfor %}
+
+    {# --------------------- MODO PRIORIDADE (2 modelos) --------------------- #}
+    {% else %}
+
+    {% for class_name, data in metrics.items() %}
+    <h4 class="text-lg font-bold mt-4">{{ class_name }}</h4>
+
+    {% if data is mapping %}
+    {% for k, v in data.items() %}
+    <div class="py-1 flex justify-between border-b">
+      <span class="text-gray-600">{{ k }}</span>
+      <span class="font-semibold">{{ v }}</span>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endfor %}
+
+    {% endif %}
+  </div>
+  {% endif %}
+
+
+
+  <script>
+    function addClassRow(id) {
+      const container = document.getElementById(id);
+      container.insertAdjacentHTML("beforeend", `
+    <div class="grid grid-cols-3 gap-3 mb-2">
+      <input name="lambda[]" class="p-2 border rounded" placeholder="λ">
+      <input name="service[]" class="p-2 border rounded" placeholder="E[S]">
+      <input name="var[]" class="p-2 border rounded" placeholder="Var[S]">
+    </div>
+  `);
+    }
+  </script>
+
+  {% endblock %}

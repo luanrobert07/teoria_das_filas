@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto">
+
+  <a href="/" class="text-gray-600">← Voltar</a>
+  <h2 class="text-3xl font-bold mt-4">Modelo M/M/c/N</h2>
+  <p class="text-gray-500 mt-1">Sistema com múltiplos servidores e população finita</p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+
+    <!-- FORM -->
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h3 class="font-semibold">Parâmetros</h3>
+
+      <form method="post" class="space-y-4 mt-4">
+
+        <div>
+          <label class="text-sm">Taxa de Chegada (λ)</label>
+          <input name="lambda" value="{{ params.lambda }}" class="w-full p-2 border rounded">
+        </div>
+
+        <div>
+          <label class="text-sm">Taxa de Atendimento (μ)</label>
+          <input name="mu" value="{{ params.mu }}" class="w-full p-2 border rounded">
+        </div>
+
+        <div>
+          <label class="text-sm">Número de Servidores (c)</label>
+          <input name="s" value="{{ params.s }}" class="w-full p-2 border rounded">
+        </div>
+
+        <div>
+          <label class="text-sm">N — População Máxima</label>
+          <input name="N" value="{{ params.N }}" class="w-full p-2 border rounded">
+        </div>
+
+        <!-- <div>
+          <label class="text-sm">Custo de Espera (CE)</label>
+          <input name="CE" value="{{ params.CE }}" class="w-full p-2 border rounded">
+        </div>
+
+        <div>
+          <label class="text-sm">Custo de Atendimento (CA)</label>
+          <input name="CA" value="{{ params.CA }}" class="w-full p-2 border rounded">
+        </div> -->
+
+        <button class="w-full bg-blue-600 text-white py-2 rounded">
+          Calcular
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+
+  {% if metrics %}
+  <!-- RESULTADOS -->
+  <div class="bg-white p-6 rounded-lg shadow mt-6">
+    <h3 class="text-xl font-semibold mb-4">Resultados</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <!-- RHO -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">Taxa de Ocupação (ρ)</div>
+        <div class="text-2xl font-bold text-blue-600">
+          {{ (metrics["\nTaxa de Ocupação (ρ)"] * 100) | round(4) }}%
+        </div>
+      </div>
+
+      <!-- P0 -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">Probabilidade de Inatividade (P0)</div>
+        <div class="text-2xl font-bold text-green-600">
+          {{ metrics["Probabilidade de Inatividade (P0)"] | round(6) }}
+        </div>
+      </div>
+
+      <!-- L -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">L — Número Médio no Sistema</div>
+        <div class="text-xl font-bold text-indigo-600">
+          {{ metrics["Número Médio no Sistema (L)"] | round(6) }}
+        </div>
+      </div>
+
+      <!-- Lq -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">Lq — Número Médio na Fila</div>
+        <div class="text-xl font-bold text-red-600">
+          {{ metrics["Número Médio na Fila (Lq)"] | round(6) }}
+        </div>
+      </div>
+
+      <!-- lambda_eff -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">Taxa de Processamento (λ_eff)</div>
+        <div class="text-xl font-bold text-blue-700">
+          {{ metrics["Taxa de Processamento (lambda_eff)"] | round(6) }}
+        </div>
+      </div>
+
+      <!-- W -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">W — Tempo Médio no Sistema</div>
+        <div class="text-xl font-bold text-green-600">
+          {{ metrics["Tempo Médio no Sistema (W)"] | round(6) }}
+        </div>
+      </div>
+
+      <!-- Wq -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">Wq — Tempo Médio na Fila</div>
+        <div class="text-xl font-bold text-yellow-600">
+          {{ metrics["Tempo Médio na Fila (Wq)"] | round(6) }}
+        </div>
+      </div>
+
+      <!-- CT -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">Custo Total (CT)</div>
+        <div class="text-xl font-bold text-purple-600">
+          {{ metrics["Custo Total (CT)"] | round(6) }}
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="my-6">
+
+    <!-- TABELA DE PROBABILIDADES -->
+    <h3 class="text-lg font-semibold mb-2">Probabilidades Normalizadas</h3>
+    <p class="text-sm text-gray-500 mb-3">Probabilidade de existir n clientes no sistema</p>
+
+    <div class="overflow-hidden border rounded-lg">
+      <table class="min-w-full bg-white">
+        <thead class="bg-gray-50 border-b">
+          <tr>
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">n</th>
+            <th class="px-4 py-3 text-right text-sm font-medium text-gray-700">P(n)</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for p in metrics["Probabilidades Normalizadas"] %}
+          <tr class="border-b hover:bg-gray-50">
+            <td class="px-4 py-3 text-sm text-gray-700">
+              n = {{ loop.index0 }}
+            </td>
+            <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
+              {{ (p * 100) | round(4) }}%
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}

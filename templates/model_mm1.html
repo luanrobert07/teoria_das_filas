@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+
+  <a href="{{ url_for('index') }}" class="text-gray-600">← Voltar</a>
+  <h2 class="text-3xl font-bold mt-4">Modelo M/M/1</h2>
+  <p class="text-gray-500 mt-1">Sistema com 1 servidor, fila infinita e população infinita</p>
+
+  <!-- ===================== FORMULÁRIO ===================== -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h3 class="font-semibold">Parâmetros de Entrada</h3>
+
+      <form method="post" action="{{ url_for('mm1.index') }}" class="space-y-4 mt-4">
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Taxa de Chegada (λ)</label>
+          <input name="lambda" type="text" value="{{ params.lambda if params }}"
+                 required class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="Ex: 3">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Taxa de Atendimento (μ)</label>
+          <input name="mu" type="text" value="{{ params.mu if params }}"
+                 required class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="Ex: 4">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Tempo t1 para P(W > t)</label>
+          <input name="t_w" type="text" value="{{ params.t_w if params }}"
+                 class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="0">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Tempo t2 para P(Wq > t)</label>
+          <input name="t_wq" type="text" value="{{ params.t_wq if params }}"
+                 class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="0">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Número de clientes (n)</label>
+          <input name="n" type="number" min="0" value="{{ params.n if params }}"
+                 class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="0">
+        </div>
+
+        <button type="submit" class="w-full bg-blue-700 text-white py-2 rounded-lg">
+          Calcular
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== RESULTADOS ===================== -->
+  {% if metrics %}
+  <div class="bg-white p-6 rounded-lg shadow mt-6">
+
+    <h3 class="text-xl font-semibold mb-4">Resultados</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <!-- ρ -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">Taxa de Ocupação (ρ)</div>
+        <div class="text-2xl font-bold text-blue-600">
+          {{ ('{:.2f}%'.format((metrics.get('Taxa de Ocupação (ρ)') or 0) * 100)) }}
+        </div>
+      </div>
+
+      <!-- P0 -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">Probabilidade do Sistema Ocioso (P(0))</div>
+        <div class="text-2xl font-bold text-green-600">
+          {{ metrics.get('Probabilidade de o Sistema Ocioso (P(n=0))') }}
+        </div>
+      </div>
+
+      <!-- L -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">L — Número Médio no Sistema</div>
+        <div class="text-xl font-bold text-indigo-600">
+          {{ metrics.get('Número Médio no Sistema (L)') }}
+        </div>
+      </div>
+
+      <!-- Lq -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">Lq — Número Médio na Fila</div>
+        <div class="text-xl font-bold text-red-600">
+          {{ metrics.get('Número Médio na Fila (Lq)') }}
+        </div>
+      </div>
+
+      <!-- W -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">W — Tempo Médio no Sistema</div>
+        <div class="text-xl font-bold text-green-600">
+          {{ metrics.get('Tempo Médio no Sistema (W)') }}
+        </div>
+      </div>
+
+      <!-- Wq -->
+      <div class="bg-gray-50 p-4 rounded">
+        <div class="text-sm text-gray-500">Wq — Tempo Médio na Fila</div>
+        <div class="text-xl font-bold text-yellow-600">
+          {{ metrics.get('Tempo Médio na Fila (Wq)') }}
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="my-6">
+
+    <!-- ===================== PROBABILIDADES INDIVIDUAIS ===================== -->
+    <h3 class="text-lg font-semibold mb-2">Probabilidades calculadas</h3>
+
+    {% for k, v in metrics.items() %}
+      {% if "Probabilidade" in k and not k.startswith("Probabilidade de n clientes") %}
+      <div class="py-1 flex justify-between border-b">
+        <span class="text-gray-600">{{ k }}</span>
+        <span class="font-semibold">{{"%.4f" % v }}</span>
+      </div>
+      {% endif %}
+    {% endfor %}
+
+  </div>
+
+  <!-- ===================== TABELA COMPLETA P(0)→P(20) ===================== -->
+  <div class="bg-white p-6 rounded-lg shadow mt-6">
+    <h3 class="text-xl font-semibold mb-2">Tabela de Probabilidades — P(n)</h3>
+    <p class="text-sm text-gray-500 mb-4">Probabilidade de existir n clientes no sistema (0 → 20)</p>
+
+    <div class="overflow-hidden border rounded-lg">
+      <table class="min-w-full bg-white">
+        <thead class="bg-gray-50 border-b">
+          <tr>
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">n</th>
+            <th class="px-4 py-3 text-right text-sm font-medium text-gray-700">P(n)</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for n, val in metrics.prob_table.items() %}
+          <tr class="border-b hover:bg-gray-50">
+            <td class="px-4 py-3 text-sm text-gray-700">P({{ n }})</td>
+            <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
+              {{ "%.4f" % (val * 100) }}%
+            </td>            
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% endif %}
+</div>
+{% endblock %}
