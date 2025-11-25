@@ -1,4 +1,6 @@
-def mm1k_queue_metrics(arrival_rate, service_rate, max_capacity, waiting_cost, service_cost, num_clients):
+def mm1k_queue_metrics(
+    arrival_rate, service_rate, max_capacity, waiting_cost, service_cost, num_clients
+):
     """
     Calcular as métricas chave para uma fila M/M/1/K.
 
@@ -22,7 +24,7 @@ def mm1k_queue_metrics(arrival_rate, service_rate, max_capacity, waiting_cost, s
     if rho == 1:
         P0 = 1 / (max_capacity + 1)
     else:
-        P0 = (1 - rho) / (1 - rho**(max_capacity + 1))
+        P0 = (1 - rho) / (1 - rho ** (max_capacity + 1))
 
     # Calcular Pn para todos os n
     Pn = []
@@ -40,7 +42,9 @@ def mm1k_queue_metrics(arrival_rate, service_rate, max_capacity, waiting_cost, s
         L = max_capacity / 2
     else:
         numerator = rho / (1 - rho)
-        correction = ((max_capacity + 1) * (rho**(max_capacity + 1))) / (1 - rho**(max_capacity + 1))
+        correction = ((max_capacity + 1) * (rho ** (max_capacity + 1))) / (
+            1 - rho ** (max_capacity + 1)
+        )
         L = numerator - correction
 
     # Tempo médio no sistema (W)
@@ -51,11 +55,11 @@ def mm1k_queue_metrics(arrival_rate, service_rate, max_capacity, waiting_cost, s
 
     # Tempo médio de espera na fila (Wq)
     W_q = L_q / lambda_eff if lambda_eff > 0 else 0
-    
+
     # Probabilidade de existir n clientes no sistema (Pn)
-    Pn = [round(P0 * (rho**num_clients),4)for num_clients in range(max_capacity + 1)]
-    
-    # Custo Total (CT) 
+    Pn = [round(P0 * (rho**num_clients), 4) for num_clients in range(max_capacity + 1)]
+
+    # Custo Total (CT)
     CT = waiting_cost * L + service_cost * 1
 
     return {
@@ -68,10 +72,11 @@ def mm1k_queue_metrics(arrival_rate, service_rate, max_capacity, waiting_cost, s
         "Tempo Médio no Sistema (W)": W,
         "Tempo Médio na Fila (Wq)": W_q,
         "Custo Total (CT)": CT,
-        "Probabilidade de existir n clientes (Pn)": Pn
+        "Probabilidade de existir n clientes (Pn)": Pn,
     }
 
-'''
+
+"""
 Esse código calcula métricas de uma fila M/M/1/K, com um servidor, chegadas e atendimentos aleatórios, e capacidade máxima K.
 
 Ele recebe a taxa de chegada (λ), a taxa de atendimento (μ), a capacidade máxima (K), custos de espera e serviço,
@@ -88,4 +93,4 @@ Retorna:
 - Probabilidade de existir n clientes no sistema (P_n).
 
 Se as taxas forem inválidas (≤ 0), retorna erro.
-'''
+"""

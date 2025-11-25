@@ -3,43 +3,43 @@
 <div class="max-w-4xl mx-auto">
 
   <a href="/" class="text-gray-600">← Voltar</a>
-  <h2 class="text-3xl font-bold mt-4">Modelo M/M/s</h2>
-  <p class="text-gray-500 mt-1">Sistema com múltiplos servidores (s) em paralelo</p>
+  <h2 class="text-3xl font-bold mt-4">Modelo M/M/s>1</h2>
+  <p class="text-gray-500 mt-1">Sistema com múltiplos servidores</p>
 
-  <!-- ===================== FORMULÁRIO ===================== -->
+  <!-- FORMULÁRIO -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
     <div class="bg-white p-6 rounded-lg shadow">
       <h3 class="font-semibold">Parâmetros de Entrada</h3>
 
-      <form method="post" action="{{ url_for('mmc.index') }}" class="space-y-4 mt-4">
+      <form method="post" class="space-y-4 mt-4">
 
         <div>
-          <label class="block text-sm text-gray-700">Taxa de Chegada (λ)</label>
+          <label>Taxa de Chegada (λ)</label>
           <input name="lambda" value="{{ params.lambda if params }}" class="w-full p-2 border rounded">
         </div>
 
         <div>
-          <label class="block text-sm text-gray-700">Taxa de Atendimento (μ)</label>
+          <label>Taxa de Atendimento (μ)</label>
           <input name="mu" value="{{ params.mu if params }}" class="w-full p-2 border rounded">
         </div>
 
         <div>
-          <label class="block text-sm text-gray-700">Número de Servidores (s)</label>
+          <label>Número de Servidores (s)</label>
           <input name="c" value="{{ params.c if params }}" class="w-full p-2 border rounded">
         </div>
 
         <div>
-          <label class="block text-sm text-gray-700">Tempo t1 para P(W > t)</label>
+          <label>Tempo t1 para P(W > t)</label>
           <input name="t_w" value="{{ params.t_w if params }}" class="w-full p-2 border rounded">
         </div>
 
         <div>
-          <label class="block text-sm text-gray-700">Tempo t2 para P(Wq > t)</label>
+          <label>Tempo t2 para P(Wq > t)</label>
           <input name="t_wq" value="{{ params.t_wq if params }}" class="w-full p-2 border rounded">
         </div>
 
         <div>
-          <label class="block text-sm text-gray-700">N (para P(n))</label>
+          <label>N (para P(n))</label>
           <input name="n" value="{{ params.n if params }}" class="w-full p-2 border rounded">
         </div>
 
@@ -50,57 +50,49 @@
     </div>
   </div>
 
-  <!-- ===================== RESULTADOS ===================== -->
   {% if metrics %}
   <div class="bg-white p-6 rounded-lg shadow mt-6">
-
     <h3 class="text-xl font-semibold mb-4">Resultados</h3>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-      <!-- ρ -->
       <div class="bg-gray-50 p-4 rounded">
-        <div class="text-sm text-gray-500">Taxa de Ocupação (ρ)</div>
-        <div class="text-2xl font-bold text-blue-600">
-          {{ "%.4f" % (metrics.get('\nTaxa de Ocupação (ρ)') or 0) }}
+        <div>Taxa de Ocupação (ρ)</div>
+        <div class="text-xl font-bold text-blue-600">
+          {{ "%.4f" % metrics.get('Taxa de Ocupação (ρ)') }}
         </div>
       </div>
 
-      <!-- P0 -->
       <div class="bg-gray-50 p-4 rounded">
-        <div class="text-sm text-gray-500">Probabilidade do Sistema Vazio (P0)</div>
-        <div class="text-2xl font-bold text-green-600">
-          {{ "%.4f" % (metrics.get('Probabilidade do sistema estar vazio (P0)') or 0) }}
+        <div>P0 — Sistema Vazio</div>
+        <div class="text-xl font-bold text-green-600">
+          {{ "%.4f" % metrics.get('Probabilidade do sistema estar vazio (P0)') }}
         </div>
       </div>
 
-      <!-- L -->
       <div class="bg-gray-50 p-4 rounded">
-        <div class="text-sm text-gray-500">L — Número Médio no Sistema</div>
+        <div>L — Número Médio no Sistema</div>
         <div class="text-xl font-bold text-indigo-600">
           {{ "%.4f" % metrics.get('Número Médio no Sistema (L)') }}
         </div>
       </div>
 
-      <!-- Lq -->
       <div class="bg-gray-50 p-4 rounded">
-        <div class="text-sm text-gray-500">Lq — Número Médio na Fila</div>
+        <div>Lq — Número Médio na Fila</div>
         <div class="text-xl font-bold text-red-600">
           {{ "%.4f" % metrics.get('Número Médio na Fila (Lq)') }}
         </div>
       </div>
 
-      <!-- W -->
       <div class="bg-gray-50 p-4 rounded">
-        <div class="text-sm text-gray-500">W — Tempo Médio no Sistema</div>
+        <div>W — Tempo Médio no Sistema</div>
         <div class="text-xl font-bold text-green-600">
           {{ "%.4f" % metrics.get('Tempo Médio no Sistema (W)') }}
         </div>
       </div>
 
-      <!-- Wq -->
       <div class="bg-gray-50 p-4 rounded">
-        <div class="text-sm text-gray-500">Wq — Tempo Médio na Fila</div>
+        <div>Wq — Tempo Médio na Fila</div>
         <div class="text-xl font-bold text-yellow-600">
           {{ "%.4f" % metrics.get('Tempo Médio na Fila (Wq)') }}
         </div>
@@ -110,49 +102,60 @@
 
     <hr class="my-6">
 
-    <!-- ===================== PROBABILIDADES INDIVIDUAIS ===================== -->
     <h3 class="text-lg font-semibold mb-2">Probabilidades Calculadas</h3>
 
     {% for k, v in metrics.items() %}
-      {% if "Probabilidade" in k and not k.startswith("Probabilidade de ter n") %}
+      {% if "Probabilidade" in k %}
       <div class="py-1 flex justify-between border-b">
-        <span class="text-gray-600">{{ k }}</span>
-
-        <span class="font-semibold">
-            {{"%.4f" % v }}
-        </span>
+        <span>{{ k }}</span>
+        <span class="font-semibold">{{ "%.6f" % v }}</span>
       </div>
       {% endif %}
     {% endfor %}
-
   </div>
 
-  <!-- ===================== TABELA DE PROBABILIDADE P(n) ===================== -->
+  <!-- PROBABILIDADES P(N), P(N>N), P(N≤N) -->
+  <!-- <div class="bg-white p-6 rounded-lg shadow mt-6">
+    <h3 class="text-xl font-semibold mb-2">Probabilidade Relativa a N</h3>
+
+    <div class="py-1 flex justify-between border-b">
+      <span>P(n)</span>
+      <span>{{ "%.6f" % metrics.get("P(n)") }}</span>
+    </div>
+
+    <div class="py-1 flex justify-between border-b">
+      <span>P(N ≤ n)</span>
+      <span>{{ "%.6f" % metrics.get("P(N ≤ n) — Probabilidade de haver até n clientes", metrics.get("P(N ≤ n)")) }}</span>
+    </div>
+
+    <div class="py-1 flex justify-between border-b">
+      <span>P(N > n)</span>
+      <span>{{ "%.6f" % metrics.get("P(N > n) — Probabilidade de haver mais que n clientes", metrics.get("P(N > n)")) }}</span>
+    </div>
+  </div> -->
+
+
+  <!-- TABELA P(n) -->
   <div class="bg-white p-6 rounded-lg shadow mt-6">
     <h3 class="text-xl font-semibold mb-2">Tabela de Probabilidades — P(n)</h3>
-    <p class="text-sm text-gray-500 mb-4">Probabilidade de existir n clientes no sistema (0 → N)</p>
 
-    <div class="overflow-hidden border rounded-lg">
-      <table class="min-w-full bg-white">
-        <thead class="bg-gray-50 border-b">
-          <tr>
-            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">n</th>
-            <th class="px-4 py-3 text-right text-sm font-medium text-gray-700">P(n)</th>
-          </tr>
-        </thead>
+    <table class="w-full text-left">
+      <thead>
+        <tr class="border-b">
+          <th class="px-4 py-2">n</th>
+          <th class="px-4 py-2">P(n)</th>
+        </tr>
+      </thead>
 
-        <tbody>
-          {% for n, val in metrics.prob_table.items() %}
-          <tr class="border-b hover:bg-gray-50">
-            <td class="px-4 py-3 text-sm text-gray-700">P({{ n }})</td>
-            <td class="px-4 py-3 text-sm font-semibold text-right text-gray-900">
-              {{ "%.6f" % val }}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+      <tbody>
+        {% for n, val in metrics.prob_table.items() %}
+        <tr class="border-b">
+          <td class="px-4 py-2">P({{ n }})</td>
+          <td class="px-4 py-2">{{ "%.6f" % val }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 
   {% endif %}

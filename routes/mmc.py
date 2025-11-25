@@ -47,26 +47,28 @@ def index():
                 return render_template("model_mmc.html", params=params)
 
         except Exception as e:
-            flash(f"Erro ao executar o modelo M/M/s: {e}", "danger")
+            flash(f"Erro no M/M/s: {e}", "danger")
             return render_template("model_mmc.html", params=params)
 
-        # ----------- GERAR TABELA P(0→N) -----------
+        # ---------- Tabela P(0→N) ----------
         prob_table = {}
 
-        P0 = metrics.get("Probabilidade do sistema estar vazio (P0)") or 0
-        rho = metrics.get("\nTaxa de Ocupação (ρ)") or 0
+        rho = metrics.get("Taxa de Ocupação (ρ)")
+        P0 = metrics.get("Probabilidade do sistema estar vazio (P0)")
 
         for i in range(n + 1):
             if i < c:
-                val = (pow(lam / mu, i) / math.factorial(i)) * P0
+                val = ((lam / mu) ** i / math.factorial(i)) * P0
             else:
-                val = (
-                    pow(lam / mu, i)
-                    / (math.factorial(c) * pow(c, i - c))
-                ) * P0
+                val = ((lam / mu) ** i / (math.factorial(c) * (c ** (i - c)))) * P0
 
             prob_table[i] = round(val, 6)
 
         metrics["prob_table"] = prob_table
+
+        # Também guardar versões simples
+        metrics["P(n)"] = prob_table.get(n, 0)
+        metrics["P(N > n)"] = 1 - sum(prob_table.values())
+        metrics["P(N ≤ n)"] = sum(prob_table.values())
 
     return render_template("model_mmc.html", params=params, metrics=metrics)

@@ -3,11 +3,13 @@ from models.mm1n_queue import mm1n_queue_metrics
 
 bp = Blueprint("mm1n", __name__, url_prefix="/mm1n")
 
+
 def _to_float(val, default=0.0):
     try:
         return float(str(val).replace(",", "."))
     except:
         return default
+
 
 @bp.route("/", methods=["GET", "POST"])
 def index():
@@ -16,7 +18,7 @@ def index():
 
     if request.method == "POST":
         lam = _to_float(request.form.get("lambda"))
-        mu  = _to_float(request.form.get("mu"))
+        mu = _to_float(request.form.get("mu"))
 
         try:
             N = int(request.form.get("N", 0))

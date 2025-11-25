@@ -1,7 +1,9 @@
 import math
 
 
-def mm1_queue_metrics(arrival_rate, service_rate, waiting_time_w, waiting_time_wq, num_clients):
+def mm1_queue_metrics(
+    arrival_rate, service_rate, waiting_time_w, waiting_time_wq, num_clients
+):
     """
     Calcular as métricas chave para uma fila M/M/1.
 
@@ -14,7 +16,7 @@ def mm1_queue_metrics(arrival_rate, service_rate, waiting_time_w, waiting_time_w
     Retorna:
         dict: Um dicionário contendo as métricas calculadas.
     """
-    
+
     if service_rate <= arrival_rate:
         return {"Erro": "O sistema é instável (λ >= μ)."}
 
@@ -28,7 +30,7 @@ def mm1_queue_metrics(arrival_rate, service_rate, waiting_time_w, waiting_time_w
 
     # Número médio de clientes na fila (Lq)
     # Lq = ρ^2 / (1 - ρ)
-    L_q = (rho ** 2) / (1 - rho)
+    L_q = (rho**2) / (1 - rho)
 
     # Tempo médio que um cliente passa no sistema (W)
     # W = 1 / (μ - λ)
@@ -51,18 +53,26 @@ def mm1_queue_metrics(arrival_rate, service_rate, waiting_time_w, waiting_time_w
     # t >= 0
     if waiting_time_w < 0 or waiting_time_wq < 0:
         return {"Erro": "Os tempos de espera devem ser maiores ou iguais a zero."}
-    
-    
+
     # Probabilidade de W > t (P(W > t))
     P_W_greater_t = math.exp(-service_rate * (1 - rho) * waiting_time_w)
 
     # Probabilidade de W_q > t (P(W_q > t))
     P_Wq_greater_t = rho * math.exp(-service_rate * (1 - rho) * waiting_time_wq)
-    
+
     # Probabilidade de n clientes na fila (Pn)
-    Pn_quere = 1 - rho**(num_clients + 1)
-    
-    Pn_system = (rho**num_clients) * (1-rho) 
+    Pn_quere = 1 - rho ** (num_clients + 1)
+
+    Pn_system = (rho**num_clients) * (1 - rho)
+
+    # Probabilidade de haver exatamente n clientes no sistema
+    P_n_system_exact = (1 - rho) * (rho**num_clients)
+
+    # Probabilidade de o número de clientes ser maior que r
+    P_more_than_r = rho ** (num_clients + 1)
+
+    # Probabilidade de haver até n clientes
+    P_up_to_n = 1 - (rho ** (num_clients + 1))
 
     results = {
         "Probabilidade de Não Esperar (P_0)": P_0,
@@ -76,12 +86,16 @@ def mm1_queue_metrics(arrival_rate, service_rate, waiting_time_w, waiting_time_w
         "Probabilidade de W > t": P_W_greater_t,
         "Probabilidade de Wq > t": P_Wq_greater_t,
         "Probabilidade de n clientes na fila": Pn_quere,
-        "Probabilidade de n clientes no sistema": Pn_system
+        "Probabilidade de n clientes no sistema": Pn_system,
+        "P(n) — Probabilidade de haver n clientes no sistema": P_n_system_exact,
+        "P(N > n) — Probabilidade de o número de clientes ser maior que n": P_more_than_r,
+        "P(N ≤ n) — Probabilidade de haver até n clientes": P_up_to_n,
     }
 
     return results
 
-'''
+
+"""
 Esse código calcula métricas de uma fila M/M/1, com um servidor e chegadas e atendimentos aleatórios.
 
 Ele recebe a taxa de chegada (λ), a taxa de atendimento (μ) e dois tempos para cálculo de probabilidades.
@@ -97,4 +111,4 @@ Se λ ≥ μ, o sistema é instável e ele avisa isso.
 Wq = λ/μ(μ-λ)
 Lq = λ * Wq
 bskr = -b +- sqrt(b**2 - 4ac)/2a
-'''
+"""

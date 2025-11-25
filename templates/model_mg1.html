@@ -25,7 +25,7 @@
       <input type="hidden" name="mode" value="preemptivo">
       <div class="p-6 rounded-lg shadow
                   {% if mode=='preemptivo' %} bg-blue-100 border-blue-500 border {% else %} bg-white {% endif %}">
-        <h3 class="font-bold text-lg">Prioridade Preemptiva</h3>
+        <h3 class="font-bold text-lg">Prioridade com Interrupção</h3>
         <p class="text-sm text-gray-600">Interrompe classes inferiores</p>
       </div>
     </form>
@@ -35,7 +35,7 @@
       <input type="hidden" name="mode" value="npreemptivo">
       <div class="p-6 rounded-lg shadow
                   {% if mode=='npreemptivo' %} bg-blue-100 border-blue-500 border {% else %} bg-white {% endif %}">
-        <h3 class="font-bold text-lg">Prioridade Não-Preemptiva</h3>
+        <h3 class="font-bold text-lg">Prioridade sem Interrupção</h3>
         <p class="text-sm text-gray-600">SPT — não interrompe</p>
       </div>
     </form>

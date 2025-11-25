@@ -15,32 +15,32 @@
 
         <div>
           <label class="block text-sm font-medium text-gray-700">Taxa de Chegada (λ)</label>
-          <input name="lambda" type="text" value="{{ params.lambda if params }}"
-                 required class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="Ex: 3">
+          <input name="lambda" type="text" value="{{ params.lambda if params }}" required
+            class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="Ex: 3">
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700">Taxa de Atendimento (μ)</label>
-          <input name="mu" type="text" value="{{ params.mu if params }}"
-                 required class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="Ex: 4">
+          <input name="mu" type="text" value="{{ params.mu if params }}" required
+            class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="Ex: 4">
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700">Tempo t1 para P(W > t)</label>
           <input name="t_w" type="text" value="{{ params.t_w if params }}"
-                 class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="0">
+            class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="0">
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700">Tempo t2 para P(Wq > t)</label>
           <input name="t_wq" type="text" value="{{ params.t_wq if params }}"
-                 class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="0">
+            class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="0">
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700">Número de clientes (n)</label>
           <input name="n" type="number" min="0" value="{{ params.n if params }}"
-                 class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="0">
+            class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2" placeholder="0">
         </div>
 
         <button type="submit" class="w-full bg-blue-700 text-white py-2 rounded-lg">
@@ -115,13 +115,16 @@
     <h3 class="text-lg font-semibold mb-2">Probabilidades calculadas</h3>
 
     {% for k, v in metrics.items() %}
-      {% if "Probabilidade" in k and not k.startswith("Probabilidade de n clientes") %}
-      <div class="py-1 flex justify-between border-b">
-        <span class="text-gray-600">{{ k }}</span>
-        <span class="font-semibold">{{"%.4f" % v }}</span>
-      </div>
+      {% if "Probabilidade" in k or "P(" in k %}
+        <div class="py-1 flex justify-between border-b">
+          <span class="text-gray-600">{{ k }}</span>
+          <span class="font-semibold">{{"%.6f" % v }}</span>
+        </div>
       {% endif %}
     {% endfor %}
+
+
+
 
   </div>
 
@@ -145,7 +148,7 @@
             <td class="px-4 py-3 text-sm text-gray-700">P({{ n }})</td>
             <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
               {{ "%.4f" % (val * 100) }}%
-            </td>            
+            </td>
           </tr>
           {% endfor %}
         </tbody>
