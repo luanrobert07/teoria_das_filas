@@ -4,18 +4,26 @@
 <div class="max-w-4xl mx-auto">
 
   <a href="/" class="text-gray-600">← Voltar</a>
-  <h2 class="text-3xl font-bold mt-4">M/M/1 — Prioridade com interrupção</h2>
+  <h2 class="text-3xl font-bold mt-4">M/M/s — Prioridade com interrupção</h2>
   <p class="text-gray-500 mt-1">Classes com prioridade podem interromper as inferiores</p>
 
   <!-- FORM -->
   <form method="post" class="bg-white p-6 rounded-lg shadow mt-6">
     <h3 class="text-xl font-semibold mb-4">Parâmetros</h3>
 
+    <!-- μ -->
     <div>
       <label class="text-sm">Taxa de Serviço (μ)</label>
       <input name="mu" value="{{ params.mu }}" class="w-full p-2 border rounded mb-4">
     </div>
 
+    <!-- s -->
+    <div>
+      <label class="text-sm">Quantidade de Servidores (s)</label>
+      <input name="servers" value="{{ params.servers }}" class="w-full p-2 border rounded mb-4">
+    </div>
+
+    <!-- λ -->
     <h4 class="font-semibold mt-3 mb-2">Taxas de Chegada (λ) por Classe</h4>
 
     <div id="lambda-container">
@@ -30,7 +38,10 @@
       + Adicionar Classe
     </button>
 
-    <button class="w-full bg-blue-600 text-white py-2 rounded mt-4">Calcular</button>
+    <button class="w-full bg-blue-600 text-white py-2 rounded mt-4">
+      Calcular
+    </button>
+
   </form>
 
   <!-- RESULTADOS -->
@@ -48,6 +59,7 @@
       </div>
       {% endfor %}
     {% endfor %}
+
   </div>
   {% endif %}
 

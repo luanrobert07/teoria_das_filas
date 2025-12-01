@@ -50,7 +50,6 @@ def index():
             flash(f"Erro no M/M/s: {e}", "danger")
             return render_template("model_mmc.html", params=params)
 
-        # ---------- Tabela P(0→N) ----------
         prob_table = {}
 
         rho = metrics.get("Taxa de Ocupação (ρ)")
@@ -66,7 +65,6 @@ def index():
 
         metrics["prob_table"] = prob_table
 
-        # Também guardar versões simples
         metrics["P(n)"] = prob_table.get(n, 0)
         metrics["P(N > n)"] = 1 - sum(prob_table.values())
         metrics["P(N ≤ n)"] = sum(prob_table.values())

@@ -27,10 +27,7 @@ def index():
             if f is not None:
                 lambdas.append(f)
 
-        params = {
-            "lambda": lambdas,
-            "mu": mu
-        }
+        params = {"lambda": lambdas, "mu": mu}
 
         if len(lambdas) == 0:
             flash("Informe ao menos uma taxa λ.", "danger")
@@ -46,6 +43,4 @@ def index():
             except Exception as e:
                 flash(str(e), "danger")
 
-    return render_template("model_mm1_preemptive.html",
-                           params=params,
-                           metrics=metrics)
+    return render_template("model_mm1_preemptive.html", params=params, metrics=metrics)

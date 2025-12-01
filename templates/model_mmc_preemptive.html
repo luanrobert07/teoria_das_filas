@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto">
+
+  <a href="/" class="text-gray-600">← Voltar</a>
+  <h2 class="text-3xl font-bold mt-4">M/M/s — Prioridade Preemptiva</h2>
+  <p class="text-gray-500 mt-1">Cálculo baseado no modelo com interrupção (preemptivo).</p>
+
+  <!-- FORM -->
+  <form method="post" class="bg-white p-6 rounded-lg shadow mt-6">
+
+    <h3 class="text-xl font-semibold mb-4">Parâmetros</h3>
+
+    <div class="mb-4">
+      <label class="text-sm font-semibold">Taxa de Serviço (μ)</label>
+      <input name="mu" value="{{ params.mu }}" class="w-full p-2 border rounded">
+    </div>
+
+    <div class="mb-4">
+      <label class="text-sm font-semibold">Servidores (s)</label>
+      <input name="servers" value="{{ params.servers }}" class="w-full p-2 border rounded">
+    </div>
+
+    <h4 class="font-semibold mt-4 mb-2">Taxas de Chegada (λ), da maior para a menor prioridade</h4>
+
+    <div id="lambda-container">
+
+      {% for val in params.lambda %}
+      <div class="mb-2">
+        <input name="lambda[]" class="p-2 border rounded w-full" value="{{ val }}">
+      </div>
+      {% endfor %}
+
+      {% if not params.lambda %}
+      <div class="mb-2">
+        <input name="lambda[]" class="p-2 border rounded w-full" placeholder="λ">
+      </div>
+      {% endif %}
+
+    </div>
+
+    <button type="button" 
+            class="bg-gray-200 px-3 py-1 rounded text-sm"
+            onclick="addLambdaRow()">
+      + Adicionar Classe
+    </button>
+
+    <button class="w-full bg-blue-600 text-white py-2 rounded mt-4">
+      Calcular
+    </button>
+
+  </form>
+
+  {% if metrics %}
+  <div class="bg-white p-6 rounded-lg shadow mt-6">
+
+    <h3 class="text-xl font-semibold mb-4">Resultados</h3>
+
+    {% for class_name, data in metrics.items() %}
+      <h4 class="text-lg font-bold mt-4">{{ class_name }}</h4>
+
+      <div class="text-sm mt-3">
+
+        <div class="flex justify-between py-1 border-b"><span>W</span><span>{{ data.W }}</span></div>
+        <div class="flex justify-between py-1 border-b"><span>Wq</span><span>{{ data.Wq }}</span></div>
+        {% if data.L is defined %}
+        <div class="flex justify-between py-1 border-b"><span>L</span><span>{{ data.L }}</span></div>
+        <div class="flex justify-between py-1 border-b"><span>Lq</span><span>{{ data.Lq }}</span></div>
+        {% endif %}
+
+      </div>
+
+    {% endfor %}
+
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+function addLambdaRow() {
+  document.getElementById("lambda-container").insertAdjacentHTML(
+    "beforeend",
+    `<div class="mb-2">
+        <input name="lambda[]" class="p-2 border rounded w-full" placeholder="λ">
+     </div>`
+  );
+}
+</script>
+
+{% endblock %}

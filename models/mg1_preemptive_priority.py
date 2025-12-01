@@ -1,5 +1,6 @@
 from decimal import Decimal, getcontext
 
+
 def mg1_preemptive_priority_metrics(arrival_rates, service_times, service_variances):
     """
     Calcula métricas para uma fila M/G/1 com prioridade preemptiva.
@@ -59,10 +60,11 @@ def mg1_preemptive_priority_metrics(arrival_rates, service_times, service_varian
             "Número Médio no Sistema (L)": round(L, 5),
             "Número Médio na Fila (Lq)": round(Lq, 5),
             "Tempo Médio no Sistema (W)": round(W, 5),
-            "Tempo Médio na Fila (Wq)": round(Wq, 5)
+            "Tempo Médio na Fila (Wq)": round(Wq, 5),
         }
 
     return results
+
 
 """
 

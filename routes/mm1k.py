@@ -17,7 +17,6 @@ def index():
     metrics = None
 
     if request.method == "POST":
-        # ----- INPUTS -----
         lam = _to_float(request.form.get("lambda"))
         mu = _to_float(request.form.get("mu"))
         K = int(request.form.get("K", 0))
@@ -39,7 +38,6 @@ def index():
             "n": n,
         }
 
-        # ----- EXECUTA MODELO -----
         try:
             metrics = mm1k_queue_metrics(lam, mu, K, CE, CA, n)
 
@@ -51,7 +49,6 @@ def index():
             flash(f"Erro ao executar M/M/1/K: {e}", "danger")
             return render_template("model_mm1k.html", params=params)
 
-        # ----- GERAR TABELA P(0→K) -----
         prob_list = metrics.get("Probabilidade de existir n clientes (Pn)", [])
 
         prob_table = {}
