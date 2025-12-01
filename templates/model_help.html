@@ -1,0 +1,214 @@
+{# templates/mapped_questions.html #}
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="max-w-6xl mx-auto py-8">
+
+  <a href="/" class="text-gray-600">← Voltar</a>
+  <h1 class="text-3xl font-bold mt-4">Mapeamento sobre os modelos</h1>
+
+  <div class="bg-white p-6 rounded-lg shadow mt-6 space-y-6">
+    <!-- Quick identification -->
+    <section>
+      <h2 class="text-xl font-semibold mb-2">Identificação rápida (fluxo)</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div class="p-3 border rounded">
+          <div class="font-semibold">1 atendente</div>
+          <div>M/M/1</div>
+        </div>
+        <div class="p-3 border rounded">
+          <div class="font-semibold">s atendentes</div>
+          <div>M/M/s</div>
+        </div>
+        <div class="p-3 border rounded">
+          <div class="font-semibold">Capacidade máxima (K)</div>
+          <div>M/M/1/K ou M/M/s/K</div>
+        </div>
+        <div class="p-3 border rounded">
+          <div class="font-semibold">População finita (N)</div>
+          <div>M/M/1/N ou M/M/s/N</div>
+        </div>
+        <div class="p-3 border rounded">
+          <div class="font-semibold">Tempo de serviço não exponencial</div>
+          <div>M/G/1 (usar média 1/μ e variância σ²).</div>
+        </div>
+        <div class="p-3 border rounded">
+          <div class="font-semibold">Prioridades</div>
+          <div>Com interrupção → prioridade preemptiva; sem → não-preemptiva.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- M/M/1 -->
+    <section id="mm1">
+      <h2 class="text-xl font-semibold">M/M/1 — (um servidor, fila infinita)</h2>
+      <p class="text-sm text-gray-700">
+        Quando a questão fala “um atendente”, “um caixa”, ou descreve chegadas Poisson e tempo de serviço exponencial com apenas 1 servidor.
+      </p>
+
+      <div class="text-sm mt-2">
+        <div class="font-semibold">Como extrair entradas</div>
+        <ul class="list-disc ml-5">
+          <li>λ: chegadas por unidade de tempo (ex.: “10 clientes/h” → λ = 10).</li>
+          <li>μ: atendimentos por unidade de tempo (ex.: “um atendimento dura 6 min” → μ = 1/6 por min).</li>
+          <li>s = 1.</li>
+        </ul>
+
+        <div class="font-semibold mt-3">Exemplo (rápido)</div>
+        <div class="p-3 border rounded bg-gray-50">
+          Enunciado: chegam 4 carros/h; lavagem leva 10 min → μ = 60/10 = 6/h.  
+          Parâmetros: λ = 4, μ = 6, s = 1.  
+          Fórmulas: ρ = λ/μ = 4/6 = 0.6667; W = 1/(μ − λ) = 1/(6−4)=0.5 h; Wq = ρ·W = 0.3333 h.  
+        </div>
+      </div>
+    </section>
+
+    <!-- M/M/s -->
+    <section id="mms">
+      <h2 class="text-xl font-semibold">M/M/s — (vários servidores, fila infinita)</h2>
+      <p class="text-sm text-gray-700">
+        Use quando enunciado indicar vários atendentes (ex.: “3 caixas”, “2 médicos”).
+      </p>
+
+      <div class="text-sm mt-2">
+        <div class="font-semibold">Como extrair entradas</div>
+        <ul class="list-disc ml-5">
+          <li>λ: total de chegadas por tempo.</li>
+          <li>μ: taxa de serviço por servidor.</li>
+          <li>s: número de servidores (ex.: “2 caixas” → s = 2).</li>
+        </ul>
+
+        <div class="font-semibold mt-3">Exemplo (rápido)</div>
+        <div class="p-3 border rounded bg-gray-50">
+          Enunciado: chegam 12 clientes/h e há 2 caixas; tempo médio de serviço é 10 min → μ = 6/h.  
+          Parâmetros: λ = 12, μ = 6, s = 2.  
+          Condição: sistema estável se λ < s·μ → 12 < 12 é limite; ajuste unidades ou revisar dados. Fórmulas: usar P₀ (Erlang), Pw, Wq = Pw/(sμ − λ), W = Wq + 1/μ.
+        </div>
+      </div>
+    </section>
+
+    <!-- M/M/1/K -->
+    <section id="mm1k">
+      <h2 class="text-xl font-semibold">M/M/1/K — (um servidor, capacidade limitada)</h2>
+      <p class="text-sm text-gray-700">
+        Ative quando o enunciado disser “máx K clientes no sistema”, “se estiver cheio, bloqueia”.
+      </p>
+
+      <div class="text-sm mt-2">
+        <div class="font-semibold">Como extrair entradas</div>
+        <ul class="list-disc ml-5">
+          <li>λ, μ (mesma definição), K (capacidade total do sistema).</li>
+        </ul>
+
+        <div class="font-semibold mt-3">Exemplo (rápido)</div>
+        <div class="p-3 border rounded bg-gray-50">
+          Enunciado: fila com 1 caixa e capacidade total K=4; chegadas 2/h, serviço μ=3/h.  
+          Parâmetros: λ=2, μ=3, s=1, K=4.  
+          Fórmulas: P₀ = (1−ρ)/(1−ρ^{K+1}); P_n = ρ^n P0; L = Σ n Pn; etc.
+        </div>
+      </div>
+    </section>
+
+    <!-- M/M/s/K -->
+    <section id="mmsk">
+      <h2 class="text-xl font-semibold">M/M/s/K — (vários servidores + capacidade)</h2>
+      <p class="text-sm text-gray-700">
+        Igual M/M/s, mas com limite K. Use quando o enunciado informar capacidade máxima do sistema e s>1.
+      </p>
+
+      <div class="text-sm mt-2">
+        <div class="font-semibold">Como extrair entradas</div>
+        <ul class="list-disc ml-5">
+          <li>λ, μ, s, K.</li>
+        </ul>
+
+        <div class="font-semibold mt-3">Exemplo (rápido)</div>
+        <div class="p-3 border rounded bg-gray-50">
+          Enunciado: fábrica com 2 técnicos e backlog; K = número total de máquinas; λ de quebras conhecido; μ de reparo conhecido. Use fórmulas M/M/s/K para P₀, Pn, L e W.
+        </div>
+      </div>
+    </section>
+
+    <!-- M/M/1/N and M/M/s/N -->
+    <section id="mmn">
+      <h2 class="text-xl font-semibold">M/M/1/N e M/M/s/N — população finita</h2>
+      <p class="text-sm text-gray-700">
+        Use quando enunciado indicar “população total N” (ex.: robôs, máquinas, pessoas fixas).
+      </p>
+
+      <div class="text-sm mt-2">
+        <div class="font-semibold">Como extrair entradas</div>
+        <ul class="list-disc ml-5">
+          <li>λ por fonte deve ser convertido considerando população finita (fórmula específica), N total, μ, s.</li>
+        </ul>
+
+        <div class="font-semibold mt-3">Exemplo (rápido)</div>
+        <div class="p-3 border rounded bg-gray-50">
+          Ex.: 5 robôs, 2 técnicos; tempo de quebra e reparo exponenciais. Modelo M/M/s com população finita (N=5).
+        </div>
+      </div>
+    </section>
+
+    <!-- M/G/1 -->
+    <section id="mg1">
+      <h2 class="text-xl font-semibold">M/G/1 — serviço de distribuição geral (média + variância)</h2>
+      <p class="text-sm text-gray-700">
+        Quando a questão fornece média e variância do tempo de serviço (ou diz “não exponencial”).
+      </p>
+
+      <div class="text-sm mt-2">
+        <div class="font-semibold">Como extrair entradas</div>
+        <ul class="list-disc ml-5">
+          <li>λ (chegadas), 1/μ (média do serviço), σ² (variância do tempo de serviço).</li>
+        </ul>
+
+        <div class="font-semibold mt-3">Exemplo (rápido)</div>
+        <div class="p-3 border rounded bg-gray-50">
+          Enunciado (Marsha): λ = 25/h; tempo médio 90s → μ = 40/h; se serviço for exponencial: M/M/1; se for determinístico (constante) usar M/G/1 com σ²=0. Fórmulas: Lq = [λ² σ² + ρ²] / [2 (1−ρ)].
+        </div>
+      </div>
+    </section>
+
+    <!-- Prioridades: preemptive -->
+    <section id="priority_preemptive">
+      <h2 class="text-xl font-semibold">Prioridade com interrupção (preemptiva)</h2>
+      <p class="text-sm text-gray-700">
+        Use quando enunciado disser que cliente de maior prioridade interrompe atendimento do de menor prioridade (ex.: emergência hospitalar).
+      </p>
+
+      <div class="text-sm mt-2">
+        <div class="font-semibold">Como extrair entradas</div>
+        <ul class="list-disc ml-5">
+          <li>λ₁, λ₂, ... por classe (ou % que converte para λᵢ = pᵢ·λ_total).</li>
+          <li>μ (por servidor), s (nº servidores).</li>
+        </ul>
+
+        <div class="font-semibold mt-3">Exemplo (do slide)</div>
+        <div class="p-3 border rounded bg-gray-50">
+          Hospital: μ = 3, classes com λ₁=0.2, λ₂=0.6, λ₃=1.2 (total λ=2). Para s=2 o slide calcula W̄₁₂=0.33937, obtém W1 via P₀ e Lq1, depois resolve W2 e W3 por equações lineares. Resultados no slide: W2=0.34126, W3=0.39875. 
+        </div>
+      </div>
+    </section>
+
+    <!-- Priorities: non-preemptive -->
+    <section id="priority_nonpreemptive">
+      <h2 class="text-xl font-semibold">Prioridade sem interrupção (não-preemptiva)</h2>
+      <p class="text-sm text-gray-700">
+        Use quando enunciado indica prioridades, mas o atendimento em curso não é interrompido.
+      </p>
+
+      <div class="text-sm mt-2">
+        <div class="font-semibold">Como extrair entradas</div>
+        <ul class="list-disc ml-5">
+          <li>λᵢ por classe, μ, s.</li>
+        </ul>
+
+        <div class="font-semibold mt-3">Exemplo (rápido)</div>
+        <div class="p-3 border rounded bg-gray-50">
+          Ex.: três tipos de tarefas chegam com λ₁=2, λ₂=4, λ₃=2 por dia; μ = 10 (1/0.1 dia). Para s=1 compare W sob FCFS, prioridade não-preemptiva e preemptiva        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+{% endblock %}

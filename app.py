@@ -10,7 +10,7 @@ from routes.mm1_preemptive import bp as mm1_preemptive_bp
 from routes.mm1_non_preemptive import bp as mm1n_non_preemptive_bp
 from routes.mmc_preemptive import bp as mmc_preemptive_bp
 from routes.mmc_no_preemptive import bp as mmc_no_preemptive_bp
-
+from routes.help import bp as help_bp
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "dev-key"
@@ -26,6 +26,7 @@ app.register_blueprint(mm1_preemptive_bp)
 app.register_blueprint(mm1n_non_preemptive_bp)
 app.register_blueprint(mmc_preemptive_bp)
 app.register_blueprint(mmc_no_preemptive_bp)
+app.register_blueprint(help_bp)
 
 
 @app.route("/")
