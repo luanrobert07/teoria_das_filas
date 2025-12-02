@@ -1,0 +1,249 @@
+{# templates/model_formulas.html #}
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="max-w-6xl mx-auto py-8">
+  <a href="/" class="text-gray-600">← Voltar</a>
+  <h1 class="text-3xl font-bold mt-4">Fórmulas — Modelos de Filas</h1>
+  <p class="text-gray-500 mt-2">Resumo com fórmulas principais, condições de validade e notas de uso para cada modelo do seu sistema.</p>
+
+  <div class="bg-white p-6 rounded-lg shadow mt-6 space-y-6 text-sm">
+
+    <section>
+      <h2 class="text-xl font-semibold mb-2">Legenda rápida</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-3 border rounded">
+          <div class="font-semibold">Parâmetros</div>
+          <ul class="ml-4 list-disc">
+            <li><strong>λ</strong>: taxa total de chegada (por unidade de tempo)</li>
+            <li><strong>λᵢ</strong>: taxa da classe i (prioridades)</li>
+            <li><strong>μ</strong>: taxa de serviço por servidor</li>
+            <li><strong>s</strong>: número de servidores</li>
+            <li><strong>K</strong>: capacidade máxima do sistema (inclui em serviço + fila)</li>
+            <li><strong>N</strong>: população finita total</li>
+            <li><strong>ρ</strong> = λ / (s·μ) (taxa de ocupação do sistema)</li>
+          </ul>
+        </div>
+
+        <div class="p-3 border rounded">
+          <div class="font-semibold">Observações</div>
+          <ul class="ml-4 list-disc">
+            <li>Unidades: mantenha λ e μ na mesma unidade de tempo.</li>
+            <li>Estabilidade: exigir λ &lt; s·μ (exceto modelos com população finita — avaliar fórmula específica).</li>
+            <li>Notação: P₀ é a probabilidade de 0 clientes no sistema.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- M/M/1 -->
+    <section>
+      <h2 class="text-lg font-semibold">M/M/1 — fila única, atendimento exponencial</h2>
+      <div class="p-3 border rounded bg-gray-50">
+        <div class="font-semibold">Condição</div>
+        <div>ρ = λ / μ &lt; 1</div>
+
+        <div class="font-semibold mt-2">Fórmulas principais</div>
+        <pre class="whitespace-pre-wrap text-xs mt-1">
+P₀ = 1 − ρ
+
+Lq = ρ² / (1 − ρ)         (número médio na fila)
+L  = ρ / (1 − ρ)          (número médio no sistema)
+
+Wq = Lq / λ               (tempo médio na fila)
+W  = L / λ = Wq + 1/μ     (tempo médio no sistema)
+        </pre>
+
+        <div class="text-xs text-gray-600 mt-2">Notas: uso quando s = 1 e chegadas/serviço são Markovianos (Poisson/exponencial).</div>
+      </div>
+    </section>
+
+    <!-- M/M/s -->
+    <section>
+      <h2 class="text-lg font-semibold">M/M/s — múltiplos servidores, fila infinita</h2>
+      <div class="p-3 border rounded bg-gray-50">
+        <div class="font-semibold">Condição</div>
+        <div>ρ = λ / (s·μ) &lt; 1</div>
+
+        <div class="font-semibold mt-2">Fórmulas principais (Erlang C)</div>
+        <pre class="whitespace-pre-wrap text-xs mt-1">
+a = λ / μ
+
+P₀ = [ Σ_{k=0}^{s-1} a^k / k!  +  a^s / (s! · (1 − ρ)) ]⁻¹
+
+Pw = P(wait) = ( a^s / s! ) · ( ρ / (1 − ρ) ) · P₀
+
+Wq = Pw / (s·μ − λ)
+W  = Wq + 1/μ
+
+Lq = λ · Wq
+L  = λ · W
+        </pre>
+
+        <div class="text-xs text-gray-600 mt-2">Pw é a probabilidade de ter que aguardar (Erlang-C). Use quando s ≥ 1 e fila infinita.</div>
+      </div>
+    </section>
+
+    <!-- M/M/1/K -->
+    <section>
+      <h2 class="text-lg font-semibold">M/M/1/K — um servidor, capacidade limitada</h2>
+      <div class="p-3 border rounded bg-gray-50">
+        <div class="font-semibold">Condição</div>
+        <div>ρ = λ / μ (pode ser ≥ 1; fórmulas adaptadas)</div>
+
+        <div class="font-semibold mt-2">Fórmulas principais</div>
+        <pre class="whitespace-pre-wrap text-xs mt-1">
+P₀ = [ Σ_{n=0}^{K} ρ^n ]⁻¹ = (1 − ρ) / (1 − ρ^{K+1})   (ρ ≠ 1)
+
+P_n = ρ^n · P₀
+
+L = Σ_{n=0}^{K} n · P_n
+Lq = L − (1 − P₀) · (1/μ) · ???   (usar soma direta ou fórmulas deduzidas)
+
+Taxa efetiva de chegada (admitida): λ_eff = λ · (1 − P_K)
+        </pre>
+
+        <div class="text-xs text-gray-600 mt-2">Nota: para ρ = 1 use fórmulas com limites (P₀ = 1/(K+1)). Recomenda-se calcular P_n explicitamente e somar para L.</div>
+      </div>
+    </section>
+
+    <!-- M/M/s/K -->
+    <section>
+      <h2 class="text-lg font-semibold">M/M/s/K — múltiplos servidores + capacidade</h2>
+      <div class="p-3 border rounded bg-gray-50">
+        <div class="font-semibold">Definição</div>
+        <div>Estado máximo n = K (clientes no sistema incluindo em serviço).</div>
+
+        <div class="font-semibold mt-2">Fórmulas principais (estado estacionário)</div>
+        <pre class="whitespace-pre-wrap text-xs mt-1">
+P₀ = [ Σ_{n=0}^{s-1} (a^n / n!)  +  Σ_{n=s}^{K} (a^n / (s! · s^{n-s})) ]⁻¹   , a = λ/μ
+
+P_n = { a^n / n! · P₀              , n < s
+      { a^n / (s! · s^{n-s}) · P₀   , s ≤ n ≤ K
+
+λ_eff = λ · (1 − P_K)
+L = Σ_{n=0}^{K} n · P_n
+W = L / λ_eff
+Wq = W − (expected number in service)/λ_eff
+        </pre>
+
+        <div class="text-xs text-gray-600 mt-2">Cálculos recomendados: obtenha P₀ numericamente, depois P_n, L e λ_eff.</div>
+      </div>
+    </section>
+
+    <!-- M/M/1/N e M/M/s/N -->
+    <section>
+      <h2 class="text-lg font-semibold">M/M/1/N e M/M/s/N — população finita</h2>
+      <div class="p-3 border rounded bg-gray-50">
+        <div class="font-semibold">Observação</div>
+        <div>N é o total de fontes possíveis; a taxa efetiva de chegada depende do número de fontes ocupadas.</div>
+
+        <div class="font-semibold mt-2">Estrutura</div>
+        <pre class="whitespace-pre-wrap text-xs mt-1">
+λ(n) = (N − n) · λ₀   (se λ₀ é a taxa por fonte)
+Taxas de transição dependem de n; calcule P_n por balanceamento detalhado:
+P_n = Π (λ(k−1)/μ(k)) · P₀ (forma recursiva)
+
+L = Σ n · P_n
+Tempo médio W = L / λ_eff   (onde λ_eff = λ · (1 − probabilidade de bloqueio considerando N))
+        </pre>
+
+        <div class="text-xs text-gray-600 mt-2">Implementação: derive λ(n) corretamente conforme enunciado; use recursão para P_n.</div>
+      </div>
+    </section>
+
+    <!-- M/G/1 -->
+    <section>
+      <h2 class="text-lg font-semibold">M/G/1 — chegada Poisson, serviço geral</h2>
+      <div class="p-3 border rounded bg-gray-50">
+        <div class="font-semibold">Dados necessários</div>
+        <div>λ, média do serviço E[S] = 1/μ, variância Var(S) = σ²</div>
+
+        <div class="font-semibold mt-2">Pollaczek–Khinchine (PK)</div>
+        <pre class="whitespace-pre-wrap text-xs mt-1">
+ρ = λ · E[S] = λ / μ
+
+Lq = (λ² · E[S²]) / (2 · (1 − ρ))
+    = (λ² · (Var(S) + (E[S])²)) / (2 · (1 − ρ))
+
+Wq = Lq / λ
+W  = Wq + E[S]
+
+L = λ · W
+        </pre>
+
+        <div class="text-xs text-gray-600 mt-2">Use quando o enunciado fornecer média e variância do tempo de serviço (ou dizer "distribuição geral").</div>
+      </div>
+    </section>
+
+    <!-- Prioridades: preemptive -->
+    <section>
+      <h2 class="text-lg font-semibold">Prioridade com interrupção (preemptiva)</h2>
+      <div class="p-3 border rounded bg-gray-50">
+        <div class="font-semibold">Contexto</div>
+        <div>Classes i = 1..K, ordem de prioridade: 1 é a mais alta. Clientes de prioridade superior interrompem atendimento de inferiores.</div>
+
+        <div class="font-semibold mt-2">Fórmulas (visão prática)</div>
+        <pre class="whitespace-pre-wrap text-xs mt-1">
+Defina λ_k = taxa da classe k, e Λ_k = Σ_{i=1}^{k} λ_i (acumulada).
+
+Para s = 1 (fórmulas clássicas):
+W_k = (1/μ) / [ (1 − Λ_{k−1}/μ) · (1 − Λ_k/μ) ]
+Wq_k = W_k − 1/μ
+L_k (cumulativa) = Λ_k · W_k
+Lq_k = L_k − Λ_k/μ
+
+Para s ≥ 2: usar procedimento híbrido (Erlang C para Λ_k para obter W̄_k, resolver W_k por equações ponderadas como nos slides) ou usar algoritmo numérico baseado em Pw(Λ_k).
+        </pre>
+
+        <div class="text-xs text-gray-600 mt-2">Nota: existem duas interpretações de L_k (individual vs cumulativa). Nos slides muitas vezes usam L_cumulativa = Λ_k · W_k.</div>
+      </div>
+    </section>
+
+    <!-- Prioridades: non-preemptive -->
+    <section>
+      <h2 class="text-lg font-semibold">Prioridade sem interrupção (não-preemptiva)</h2>
+      <div class="p-3 border rounded bg-gray-50">
+        <div class="font-semibold">Contexto</div>
+        <div>Clientes de maior prioridade são atendidos antes, mas não interrompem atendimento em curso.</div>
+
+        <div class="font-semibold mt-2">Fórmulas (esquema)</div>
+        <pre class="whitespace-pre-wrap text-xs mt-1">
+Método prático (s > 1): para cada nível k considere taxa acumulada Λ_k e calcule Pw(Λ_k) via Erlang-C:
+
+Wq_k = Pw(Λ_k) / (s·μ − Λ_k)
+W_k  = Wq_k + 1/μ
+
+Alternativa: técnicas recursivas usando tempos médios ponderados e taxas efetivas por classe.
+        </pre>
+
+        <div class="text-xs text-gray-600 mt-2">Implementações exatas dependem de suposições adicionais; para provas, descreva método e aplique fórmulas com Λ_k.</div>
+      </div>
+    </section>
+
+    <!-- Cheatsheet -->
+    <section>
+      <h2 class="text-lg font-semibold">Resumo</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="p-3 border rounded">
+          <div class="font-semibold mb-1">M/M/1</div>
+          <div>W = 1/(μ − λ), Wq = λ/(μ (μ − λ))</div>
+        </div>
+        <div class="p-3 border rounded">
+          <div class="font-semibold mb-1">M/M/s</div>
+          <div>Wq = Pw/(sμ − λ), W = Wq + 1/μ (calcular Pw via Erlang-C)</div>
+        </div>
+        <div class="p-3 border rounded">
+          <div class="font-semibold mb-1">M/G/1 (PK)</div>
+          <div>Lq = (λ² E[S²]) / (2(1 − ρ)), W = Wq + E[S]</div>
+        </div>
+        <div class="p-3 border rounded">
+          <div class="font-semibold mb-1">Com capacidade K</div>
+          <div>Calcule P₀ pelo somatório até K, então Pn e λ_eff = λ(1 − P_K)</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+{% endblock %}
